@@ -30,7 +30,7 @@
         }
 
         function serializeMessage(message) {
-            var obj = {
+            const obj = {
                 'username': username,
                 'color': color,
                 'message': message
@@ -45,17 +45,12 @@
         function connect() {
             socket = new WebSocket(uri);
 
-            if (!socket) {
-                console.log("Socket is fucked up");
-                return false;
-            }
-
             socket.onopen = function () {
                 writeToScreen('Connected to server ' + uri);
             };
 
             socket.onerror = function () {
-                writeToScreen('Error!!!');
+                writeToScreen('Error something got messed up.');
             };
 
             socket.onclose = function () {
@@ -75,9 +70,9 @@
             // Init user data
             username = $('#username').val();
             color = $('#color').val();
-            // Enable send and close button
             $('#send').prop('disabled', false);
             $('#close').prop('disabled', false);
+
             $('#connect').prop('disabled', true);
             $('#username').prop('disabled', true);
             $('#color').prop('disabled', true);
@@ -88,14 +83,15 @@
         }
 
         function writeToScreen(msg) {
-            var screen = $('#screen');
-            msg = parseMessage(msg);
+            const screen = $('#screen');
+            tempMsg = parseMessage(msg);
 
-            if (msg == null) {
-                msg = serializeMessage(msg);
+            if (tempMsg != null) {
+                screen.append(renderMessage(tempMsg));
+            } else {
+                screen.append(msg + "<br>");
             }
 
-            screen.append(renderMessage(msg));
             screen.animate({scrollTop: screen.height()}, 10);
         }
 
@@ -139,7 +135,7 @@
 <body>
 <form id="frmInput" action="" onsubmit="return false;">
     <div id="screen">
-        <p>Demo realtime chatroom</p>
+        <p>Andrew's WebSocket</p>
         <p>----------------------</p>
     </div>
     <div id="input">
