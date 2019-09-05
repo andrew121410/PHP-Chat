@@ -1,0 +1,43 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    font-size: 16px;
+}
+
+#screen, #input {
+    padding: 10px;
+    border: 1px solid #666;
+    width: 550px;
+    margin: 0 auto;
+}
+
+#screen {
+    margin-top: 10px;
+    height: 300px;
+    scroll: auto;
+}
+
+#screen p {
+    margin: 2px;
+}
+
+input, button {
+    font-size: 20px;
+    padding: 3px;
+}
+
+.client {
+    color: green;
+    font-weight: bold;
+}
+
+.server {
+    color: red;
+    font-weight: bold;
+}

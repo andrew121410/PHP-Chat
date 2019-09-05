@@ -1,11 +1,4 @@
 <?php
-/**
- * Demo Websocket Lesson 2 - SERVER CODE
- * -----------------------------------------
- * @Topic  : Online ChatRoom
- * @Author : ANHVNSE02067 <anhvnse@gmail.com>
- * @Website: www.nhatanh.net
- */
 
 require "PHP-Websockets/websockets.php";
 require "Message.php";
