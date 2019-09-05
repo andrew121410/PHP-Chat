@@ -9,7 +9,7 @@
     <link href="client.css" rel="stylesheet" type="text/css">
 
     <!--    Scripts-->
-    <script src="jquery-1.11.0.js"></script>
+    <script src="jquery-3.4.1.js"></script>
 
     <script>
         // Client here
@@ -19,8 +19,14 @@
         var username = 'guest_' + $.now();
 
         function parseMessage(data) {
-            var jsonObj = JSON.parse(data);
-            return jsonObj;
+            var temp = null;
+            try {
+                temp = JSON.parse(data);
+            } catch (e) {
+                console.log("parseMessage catched.");
+                return null;
+            }
+            return temp;
         }
 
         function serializeMessage(message) {
@@ -28,7 +34,7 @@
                 'username': username,
                 'color': color,
                 'message': message
-            }
+            };
             return JSON.stringify(obj);
         }
 
@@ -38,25 +44,34 @@
 
         function connect() {
             socket = new WebSocket(uri);
-            if (!socket || socket == undefined) return false;
+
+            if (!socket) {
+                console.log("Socket is fucked up");
+                return false;
+            }
+
             socket.onopen = function () {
                 writeToScreen('Connected to server ' + uri);
-            }
+            };
+
             socket.onerror = function () {
                 writeToScreen('Error!!!');
-            }
+            };
+
             socket.onclose = function () {
                 $('#send').prop('disabled', true);
                 $('#close').prop('disabled', true);
                 $('#connect').prop('disabled', false);
                 $('#username').prop('disabled', false);
                 $('#color').prop('disabled', false);
-                writeToScreen('Socket closed!');
-            }
+                writeToScreen('Socket closed!', false);
+            };
+
             socket.onmessage = function (e) {
                 console.log(e.data);
                 writeToScreen(e.data);
-            }
+            };
+
             // Init user data
             username = $('#username').val();
             color = $('#color').val();
@@ -73,9 +88,13 @@
         }
 
         function writeToScreen(msg) {
-            console.log('write screen');
             var screen = $('#screen');
             msg = parseMessage(msg);
+
+            if (msg == null) {
+                msg = serializeMessage(msg);
+            }
+
             screen.append(renderMessage(msg));
             screen.animate({scrollTop: screen.height()}, 10);
         }
@@ -85,9 +104,9 @@
         }
 
         function sendMessage() {
-            if (!socket || socket == undefined) return false;
+            if (!socket) return false;
             var mess = $.trim($('#message').val());
-            if (mess == '') return;
+            if (mess === '') return;
             socket.send(serializeMessage(mess));
             // Clear input
             $('#message').val('');
@@ -95,19 +114,25 @@
 
         $(document).ready(function () {
             $('#message').focus();
+
             $('#frmInput').submit(function () {
                 sendMessage();
             });
+
             $('#connect').click(function () {
                 connect();
             });
+
             $('#close').click(function () {
                 close();
             });
+
             $('#clear').click(function () {
                 clearScreen();
             });
+
         });
+
     </script>
 </head>
 
@@ -118,9 +143,9 @@
         <p>----------------------</p>
     </div>
     <div id="input">
-        <input type="text" id="username" value="guest">
-        <input type="text" id="color" value="green">
-        <input type="text" id="message" placeholder="Message here..">
+        <label for="username"></label><input type="text" id="username" value="guest">
+        <label for="color"></label><input type="text" id="color" value="green">
+        <label for="message"></label><input type="text" id="message" placeholder="Message here..">
         <button type="submit" id="send" disabled>Send</button>
         <button type="button" id="connect">Connect</button>
         <button type="button" id="close" disabled>Close</button>
