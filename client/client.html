@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!-- 
+/**
+ * Demo Websocket Lesson 2 - CLIENT CODE
+ * -----------------------------------------
+ * @Topic  : Online ChatRoom
+ * @Author : ANHVNSE02067 <anhvnse@gmail.com>
+ * @Website: www.nhatanh.net
+ *
+ * @Desc: This tutorial will provide you
+ * an example of realtime chatroom 
+ * with no database needed.
+ */
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Echo server - Websocket Demo</title>
+    <style type="text/css">
+    *{margin: 0; padding: 0;}
+    body{
+        background-color: black;
+        color: white;
+        font-family: monospace;
+        font-size: 16px;
+    }
+    #screen, #input{
+        padding: 10px;
+        border: 1px solid #666;
+        width: 550px;
+        margin: 0 auto;
+    }
+    #screen{
+        margin-top: 10px;
+        height: 300px;
+        scroll: auto;
+    }
+    #screen p{
+        margin: 2px;
+    }
+    input, button{
+        font-size: 20px;
+        padding: 3px;
+    }
+    .client{
+        color: green;
+        font-weight: bold;
+    }
+    .server{
+        color: red;
+        font-weight: bold;
+    }
+    </style>
+    <script src="jquery-1.11.0.js"></script>
+    <script>
+        // Client here
+        var socket = null;
+        var uri = "ws://localhost:2207";
+        var color = 'green';
+        var username = 'guest_'+$.now();
+
+        function parseMessage(data){
+            var jsonObj = JSON.parse(data);
+            return jsonObj;
+        }
+
+        function serializeMessage(message){
+            var obj = {
+                'username' : username,
+                'color' : color,
+                'message' : message
+            }
+            return JSON.stringify(obj);
+        }
+        
+        function renderMessage(message){
+            return '<p><span style="font-weight: bold; color: '+message.color+';">'+message.username+'</span>: '+message.message+'</p>';
+        }
+
+        function connect(){
+            socket = new WebSocket(uri);
+            if(!socket || socket == undefined) return false;
+            socket.onopen = function(){
+                writeToScreen('Connected to server '+uri);
+            }
+            socket.onerror = function(){
+                writeToScreen('Error!!!');
+            }
+            socket.onclose = function(){
+                $('#send').prop('disabled', true);
+                $('#close').prop('disabled', true);
+                $('#connect').prop('disabled', false);
+                $('#username').prop('disabled', false);
+                $('#color').prop('disabled', false);
+                writeToScreen('Socket closed!');
+            }
+            socket.onmessage = function(e){
+                console.log(e.data);
+                writeToScreen(e.data);
+            }
+            // Init user data
+            username = $('#username').val();
+            color = $('#color').val();
+            // Enable send and close button
+            $('#send').prop('disabled', false);
+            $('#close').prop('disabled', false);
+            $('#connect').prop('disabled', true);
+            $('#username').prop('disabled', true);
+            $('#color').prop('disabled', true);
+        }
+        function close(){
+            socket.close();
+        }
+        function writeToScreen(msg){
+            console.log('write screen');
+            var screen = $('#screen');
+            msg = parseMessage(msg);
+            screen.append(renderMessage(msg));
+            screen.animate({scrollTop: screen.height()}, 10);
+        }
+        function clearScreen(){
+            $('#screen').html('');
+        }
+        function sendMessage(){
+            if(!socket || socket == undefined) return false;
+            var mess = $.trim($('#message').val());
+            if(mess == '') return;
+            socket.send(serializeMessage(mess));
+            // Clear input
+            $('#message').val('');
+        }
+        $(document).ready(function(){
+            $('#message').focus();
+            $('#frmInput').submit(function(){
+                sendMessage();
+            });
+            $('#connect').click(function(){
+                connect();
+            });
+            $('#close').click(function(){
+                close();
+            });
+            $('#clear').click(function(){
+                clearScreen();
+            });
+        });
+    </script>
+</head>
+<body>
+    <form id="frmInput" action="" onsubmit="return false;">
+        <div id="screen">
+            <p>Demo realtime chatroom</p>
+            <p>----------------------</p>
+        </div>
+        <div id="input">
+            <input type="text" id="username" value="guest">
+            <input type="text" id="color" value="green">
+            <input type="text" id="message" placeholder="Message here..">
+            <button type="submit" id="send" disabled>Send</button>
+            <button type="button" id="connect">Connect</button>
+            <button type="button" id="close" disabled>Close</button>
+            <button type="button" id="clear">Clear</button>
+        </div>
+    </form>
+</body>
+</html>
