@@ -21,7 +21,7 @@ class Server extends WebSocketServer
         $this->send($user, $this->_serverMessage->serialize());
     }
 
-    // @override
+//     @override
     protected function process($user, $message)
     {
         // Send back message to everyone
@@ -58,7 +58,12 @@ class Server extends WebSocketServer
 
 
 $addr = 'localhost';
-$port = '2207';
+$port = '2019';
 
 $server = new Server($addr, $port);
-$server->run();
+
+try {
+    $server->run();
+} catch (Exception $e) {
+    print $e;
+}
